@@ -11,6 +11,9 @@
 .checkout-overlay {
   position: fixed;
   inset: 0;
+  /* Use VisualViewport height when available (set by JS), fallback to 100vh */
+  height: var(--vv-height, 100vh);
+  height: var(--vv-height, 100dvh);
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -20,6 +23,8 @@
   justify-content: center;
   padding: 24px;
   animation: checkoutFadeIn 0.3s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes checkoutFadeIn {
@@ -34,12 +39,16 @@
   border-radius: 24px;
   width: 100%;
   max-width: 460px;
+  max-height: 90vh;
+  max-height: 90dvh;
   padding: 0;
   box-shadow:
     0 32px 64px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(197, 216, 74, 0.08) inset;
   animation: checkoutSlideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Do NOT set flex-shrink: 0 — card must be able to shrink when keyboard opens */
 }
 
 @keyframes checkoutSlideUp {
@@ -108,7 +117,7 @@
   border-radius: 12px;
   padding: 14px 16px;
   color: #ffffff;
-  font-size: 0.92rem;
+  font-size: 1rem;
   font-weight: 500;
   outline: none;
   transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
@@ -776,23 +785,30 @@
 @media (max-width: 480px) {
   .checkout-overlay,
   .receipt-overlay {
-    padding: 12px;
+    padding: 0;
     align-items: flex-end;
   }
 
   .checkout-card {
     border-radius: 20px 20px 0 0;
     max-width: 100%;
+    /* Use VisualViewport-driven height when available */
+    max-height: calc(var(--vv-height, 95vh) - 0px);
   }
 
   .receipt-card {
     border-radius: 20px 20px 0 0;
     max-width: 100%;
     max-height: 95vh;
+    max-height: 95dvh;
   }
 
   .checkout-header {
     padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    background: linear-gradient(165deg, #143D2B 0%, #0e2e1f 100%);
+    z-index: 2;
   }
 
   .checkout-header h2 {
@@ -805,6 +821,12 @@
 
   .checkout-actions {
     padding: 0 20px 20px;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(165deg, #143D2B 0%, #0e2e1f 100%);
+    z-index: 2;
+    padding-top: 12px;
+    border-top: 1px solid rgba(197, 216, 74, 0.1);
   }
 
   .receipt-success-header {
@@ -834,4 +856,20 @@
     flex-direction: column;
     gap: 2px;
   }
+}
+
+/* ═══════════════════════════════════
+   KEYBOARD OPEN STATE
+   Set by JS via VisualViewport API when keyboard is detected.
+   Anchor modal to top so it doesn't fight viewport shrink.
+   ═══════════════════════════════════ */
+.checkout-overlay[data-keyboard-open="true"] {
+  align-items: flex-start;
+  padding-top: 0;
+}
+
+.checkout-overlay[data-keyboard-open="true"] .checkout-card {
+  border-radius: 0;
+  max-height: var(--vv-height, 100vh);
+  animation: none;
 }

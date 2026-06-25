@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCart } from "./CartContext";
 import { validatePakistaniPhone } from "../../utils/emailService";
 import "../../styles/checkout.css";
@@ -10,6 +10,86 @@ export default function CheckoutForm({ onBack, onOrderPlaced }) {
   const [address, setAddress] = useState("");
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef(null);
+  const overlayRef = useRef(null);
+
+  // ───────────────────────────────────────────
+  // VisualViewport API — primary cross-platform keyboard fix
+  // Works on both iOS Safari 13+ and Android Chrome
+  // ───────────────────────────────────────────
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    const vv = window.visualViewport;
+    if (!vv) {
+      // Fallback: browsers without VisualViewport (very old)
+      console.log("[CheckoutForm] VisualViewport API not available, using fallback");
+      return;
+    }
+
+    const handleViewportResize = () => {
+      const vvHeight = vv.height;
+      const keyboardHeight = window.innerHeight - vvHeight;
+
+      console.log(
+        `[CheckoutForm] VisualViewport resize: vvHeight=${vvHeight.toFixed(0)} ` +
+        `innerHeight=${window.innerHeight} keyboardHeight=${keyboardHeight.toFixed(0)}`
+      );
+
+      // Set CSS custom property so CSS can react to actual visible height
+      overlay.style.setProperty("--vv-height", `${vvHeight}px`);
+
+      // Flag for keyboard state — threshold 150px to avoid false positives
+      // from URL bar show/hide (which is typically ~50-80px)
+      if (keyboardHeight > 150) {
+        overlay.setAttribute("data-keyboard-open", "true");
+      } else {
+        overlay.removeAttribute("data-keyboard-open");
+      }
+    };
+
+    // Run once immediately to set initial value
+    handleViewportResize();
+
+    vv.addEventListener("resize", handleViewportResize);
+    vv.addEventListener("scroll", handleViewportResize);
+
+    return () => {
+      vv.removeEventListener("resize", handleViewportResize);
+      vv.removeEventListener("scroll", handleViewportResize);
+      // Clean up CSS custom property
+      overlay.style.removeProperty("--vv-height");
+      overlay.removeAttribute("data-keyboard-open");
+    };
+  }, []);
+
+  // ───────────────────────────────────────────
+  // Focus handler — scroll input into view after keyboard opens
+  // Uses rAF + setTimeout combo to wait for keyboard animation
+  // ───────────────────────────────────────────
+  useEffect(() => {
+    const formEl = formRef.current;
+    if (!formEl) return;
+
+    const handleFocus = (e) => {
+      const target = e.target;
+      if (target.tagName !== "INPUT" && target.tagName !== "TEXTAREA") return;
+
+      console.log(`[CheckoutForm] focusin fired on: ${target.id || target.tagName}`);
+
+      // rAF ensures we're in the next paint frame, then setTimeout
+      // waits for the keyboard animation to settle (~300ms)
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 300);
+      });
+    };
+
+    formEl.addEventListener("focusin", handleFocus);
+    return () => formEl.removeEventListener("focusin", handleFocus);
+  }, []);
 
   // Format phone as user types: 03XX-XXXXXXX
   const handlePhoneChange = (e) => {
@@ -65,8 +145,8 @@ export default function CheckoutForm({ onBack, onOrderPlaced }) {
   };
 
   return (
-    <div className="checkout-overlay" onClick={onBack}>
-      <div className="checkout-card" onClick={(e) => e.stopPropagation()}>
+    <div className="checkout-overlay" ref={overlayRef} onClick={onBack}>
+      <div className="checkout-card" ref={formRef} onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
         <div className="checkout-header">
