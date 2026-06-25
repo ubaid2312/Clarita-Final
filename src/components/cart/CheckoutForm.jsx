@@ -1,0 +1,184 @@
+import { useState } from "react";
+import { useCart } from "./CartContext";
+import { validatePakistaniPhone } from "../../utils/emailService";
+import "../../styles/checkout.css";
+
+export default function CheckoutForm({ onBack, onOrderPlaced }) {
+  const { cart, cartTotal, checkoutItem } = useCart();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Format phone as user types: 03XX-XXXXXXX
+  const handlePhoneChange = (e) => {
+    // Only allow digits and dashes
+    let value = e.target.value.replace(/[^\d]/g, "");
+
+    // Max 11 digits
+    if (value.length > 11) value = value.slice(0, 11);
+
+    // Auto-format: add dash after 4th digit
+    if (value.length > 4) {
+      value = value.slice(0, 4) + "-" + value.slice(4);
+    }
+
+    setPhone(value);
+    if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+    } else if (name.trim().length < 3) {
+      newErrors.name = "Please enter your full name";
+    }
+
+    // Pakistani phone validation
+    const phoneCheck = validatePakistaniPhone(phone);
+    if (!phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!phoneCheck.valid) {
+      newErrors.phone = phoneCheck.message;
+    }
+
+    if (!address.trim()) {
+      newErrors.address = "Delivery address is required";
+    } else if (address.trim().length < 10) {
+      newErrors.address = "Please enter a complete address";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    // Clean the phone number before sending
+    const cleanedPhone = phone.replace(/\D/g, "");
+    const formattedPhone = `${cleanedPhone.slice(0, 4)}-${cleanedPhone.slice(4)}`;
+    await onOrderPlaced({ name: name.trim(), phone: formattedPhone, address: address.trim() });
+    setIsSubmitting(false);
+  };
+
+  return (
+    <div className="checkout-overlay" onClick={onBack}>
+      <div className="checkout-card" onClick={(e) => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="checkout-header">
+          <h2>Checkout</h2>
+          <p>Enter your delivery details to place the order</p>
+        </div>
+
+        {/* Form Body */}
+        <div className="checkout-body">
+
+          {/* Customer Name */}
+          <div className={`checkout-field ${errors.name ? "checkout-field-error" : ""}`}>
+            <label htmlFor="checkout-name">Full Name</label>
+            <input
+              id="checkout-name"
+              type="text"
+              placeholder="e.g. Ahmed Khan"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+              }}
+              autoComplete="name"
+            />
+            {errors.name && <p className="checkout-error-text">{errors.name}</p>}
+          </div>
+
+          {/* Phone Number — Pakistani format */}
+          <div className={`checkout-field ${errors.phone ? "checkout-field-error" : ""}`}>
+            <label htmlFor="checkout-phone">Phone Number</label>
+            <input
+              id="checkout-phone"
+              type="tel"
+              placeholder="03XX-XXXXXXX"
+              value={phone}
+              onChange={handlePhoneChange}
+              autoComplete="tel"
+              maxLength={12} /* 11 digits + 1 dash */
+              inputMode="numeric"
+            />
+            {errors.phone && <p className="checkout-error-text">{errors.phone}</p>}
+          </div>
+
+          {/* Delivery Address */}
+          <div className={`checkout-field ${errors.address ? "checkout-field-error" : ""}`}>
+            <label htmlFor="checkout-address">Delivery Address</label>
+            <textarea
+              id="checkout-address"
+              placeholder="House #, Street, Area, City"
+              value={address}
+              onChange={(e) => {
+                setAddress(e.target.value);
+                if (errors.address) setErrors((prev) => ({ ...prev, address: "" }));
+              }}
+              rows={3}
+            />
+            {errors.address && <p className="checkout-error-text">{errors.address}</p>}
+          </div>
+
+          {/* Order Summary */}
+          <div className="checkout-summary">
+            <p className="checkout-summary-title">Order Summary</p>
+            <div className="checkout-summary-items">
+              {(checkoutItem ? [checkoutItem] : cart).map((item, index) => {
+                const extrasPrice = (item.selectedExtrasList || []).reduce(
+                  (sum, extra) => sum + extra.price,
+                  0
+                );
+                const itemTotal = (item.price + extrasPrice) * item.quantity;
+                return (
+                  <div className="checkout-summary-item" key={index}>
+                    <span className="checkout-summary-item-name">
+                      {item.title} {item.subtitle || ""}
+                    </span>
+                    <span className="checkout-summary-item-qty">×{item.quantity}</span>
+                    <span className="checkout-summary-item-price">
+                      Rs.{itemTotal.toFixed(2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            <hr className="checkout-summary-divider" />
+            <div className="checkout-summary-total">
+              <span>Total</span>
+              <span>Rs.{(checkoutItem ? checkoutItem.price : cartTotal).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="checkout-actions">
+          <button
+            className="checkout-confirm-btn"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <span className="btn-spinner"></span>
+                Placing Order...
+              </>
+            ) : (
+              "Confirm & Place Order"
+            )}
+          </button>
+          <button className="checkout-back-btn" onClick={onBack} disabled={isSubmitting}>
+            ← Back to Cart
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,598 @@
+/* ─────────────────────────────────────────
+   DEALS SECTION — all classes prefixed with deals- / deal-
+   to avoid collisions with other sections
+───────────────────────────────────────── */
+
+/* ─────────────────────────────────────────
+   SECTION WRAPPER
+───────────────────────────────────────── */
+.deals-section {
+  background: radial-gradient(ellipse at center top, #1a4d2e 0%, #0a2015 100%);
+  padding: 60px 20px 60px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─────────────────────────────────────────
+   HEADING
+───────────────────────────────────────── */
+.deals-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.deals-heading-line {
+  flex: 1;
+  max-width: 140px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #c8e63c);
+  border-radius: 2px;
+}
+
+.deals-heading-row .deals-heading-line:last-child {
+  background: linear-gradient(to left, transparent, #c8e63c);
+}
+
+.deals-small-heading {
+  color: #c8e63c;
+  font-family: 'Dancing Script', cursive;
+  font-size: clamp(20px, 3.5vw, 32px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.deals-main-heading {
+  color: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(32px, 7vw, 72px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 40px;
+  line-height: 1.1;
+}
+
+/* ─────────────────────────────────────────
+   CAROUSEL WRAPPER
+───────────────────────────────────────── */
+.deals-carousel-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 50px;
+}
+
+/* ─────────────────────────────────────────
+   CARDS TRACK
+───────────────────────────────────────── */
+.deals-cards-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  perspective: 900px;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+  position: relative;
+  min-height: 400px;
+}
+
+.deals-cards-track:active {
+  cursor: grabbing;
+}
+
+/* ─────────────────────────────────────────
+   CARD SLOTS — smooth transition based
+───────────────────────────────────────── */
+.deals-card-slot {
+  transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.65s cubic-bezier(0.34, 1.56, 0.64, 1),
+              flex 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  flex-shrink: 0;
+  will-change: transform, opacity;
+}
+
+.deals-card-slot--center {
+  z-index: 10;
+  transform: scale(1) translateZ(0);
+  opacity: 1;
+  flex: 0 0 280px;
+}
+
+.deals-card-slot--left {
+  z-index: 5;
+  transform: scale(0.88) rotateY(15deg) translateZ(-50px);
+  opacity: 0.85;
+  flex: 0 0 230px;
+}
+
+.deals-card-slot--right {
+  z-index: 5;
+  transform: scale(0.88) rotateY(-15deg) translateZ(-50px);
+  opacity: 0.85;
+  flex: 0 0 230px;
+}
+
+.deals-card-slot--hidden {
+  flex: 0 0 0px;
+  width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: scale(0.6) translateZ(-100px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────
+   DEAL CARD — BASE
+───────────────────────────────────────── */
+.deal-card {
+  border-radius: 20px;
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* ── SIDE CARDS (dark green) ── */
+.deal-card--side {
+  background: #163d25;
+  border: 1px solid rgba(200, 230, 60, 0.12);
+  min-height: 380px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+.deal-card--side .deal-card-title { color: #ffffff; }
+.deal-card--side .deal-card-subtitle { color: rgba(255, 255, 255, 0.55); }
+.deal-card--side .deal-card-item { color: rgba(255, 255, 255, 0.85); }
+.deal-card--side .deal-dashed-divider { border-color: rgba(255, 255, 255, 0.15); }
+.deal-card--side .deal-price-pill { background: #c8e63c; color: #1a3d15; }
+.deal-card--side .deal-buy-btn {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+}
+.deal-card--side .deal-buy-btn:hover {
+  background: #c8e63c;
+  color: #163d25;
+  border-color: #c8e63c;
+}
+
+/* ── CENTER CARD (cream) ── */
+.deal-card--center {
+  background: #f5f4e8;
+  min-height: 420px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  border: none;
+}
+
+.deal-card--center .deal-card-title { color: #0d2d1a; }
+.deal-card--center .deal-card-subtitle { color: #555; }
+.deal-card--center .deal-card-item { color: #1a1a1a; }
+.deal-card--center .deal-dashed-divider { border-color: rgba(0, 0, 0, 0.12); }
+.deal-card--center .deal-price-pill { background: #c8e63c; color: #1a3d15; }
+.deal-card--center .deal-buy-btn {
+  background: #0d2d1a;
+  color: #ffffff;
+  border: none;
+}
+.deal-card--center .deal-buy-btn:hover {
+  background: #1a4d30;
+  transform: translateY(-2px);
+}
+
+/* ── CENTER icon gets a lighter bg ── */
+.deal-card--center .deal-food-icon-wrap {
+  background: rgba(200, 230, 60, 0.2);
+}
+.deal-card--center .deal-food-icon-wrap svg {
+  stroke: #1a4d2e;
+}
+
+/* ─────────────────────────────────────────
+   MOST POPULAR BADGE
+───────────────────────────────────────── */
+.most-popular-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #c8e63c;
+  border-radius: 0 18px 0 18px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+  z-index: 5;
+}
+
+.most-popular-badge span {
+  font-size: 9px;
+  font-weight: 900;
+  color: #1a3d15;
+  letter-spacing: 0.5px;
+}
+
+.most-popular-badge .star {
+  font-size: 14px;
+  color: #1a3d15;
+  margin-top: 1px;
+}
+
+/* ─────────────────────────────────────────
+   FOOD ICON
+───────────────────────────────────────── */
+.deal-food-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  flex-shrink: 0;
+}
+
+.deal-food-icon-wrap--center {
+  width: 80px;
+  height: 80px;
+}
+
+/* ─────────────────────────────────────────
+   CARD TEXT
+───────────────────────────────────────── */
+.deal-card-title {
+  font-size: clamp(15px, 2vw, 20px);
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.deal-card-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  margin-bottom: 14px;
+}
+
+/* ─────────────────────────────────────────
+   ITEMS LIST
+───────────────────────────────────────── */
+.deal-card-items {
+  list-style: none;
+  text-align: left;
+  width: 100%;
+  margin-bottom: 14px;
+  flex: 1;
+  padding: 0;
+}
+
+.deal-card-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.deal-check-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* ─────────────────────────────────────────
+   DASHED DIVIDER
+───────────────────────────────────────── */
+.deal-dashed-divider {
+  width: 100%;
+  border: none;
+  border-top: 2px dashed rgba(0, 0, 0, 0.15);
+  margin-bottom: 14px;
+}
+
+/* ─────────────────────────────────────────
+   PRICE PILL
+───────────────────────────────────────── */
+.deal-price-pill {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: clamp(18px, 2.2vw, 22px);
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+/* ─────────────────────────────────────────
+   BUY NOW BUTTON
+───────────────────────────────────────── */
+.deal-buy-btn {
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* ─────────────────────────────────────────
+   NAVIGATION ARROWS
+───────────────────────────────────────── */
+.deals-nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #c8e63c;
+  background: transparent;
+  color: #c8e63c;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  z-index: 20;
+  position: absolute;
+}
+
+.deals-nav-btn--left { left: 0; }
+.deals-nav-btn--right { right: 0; }
+
+.deals-nav-btn:hover {
+  background: #c8e63c;
+  color: #0a2015;
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(200, 230, 60, 0.35);
+}
+
+.deals-nav-btn:disabled {
+  opacity: 0.22;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: rgba(200, 230, 60, 0.4);
+  color: rgba(200, 230, 60, 0.4);
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* ─────────────────────────────────────────
+   PAGINATION DOTS
+───────────────────────────────────────── */
+.deals-dots-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.deals-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(200, 230, 60, 0.35);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.deals-dot--active {
+  background: #c8e63c;
+  transform: scale(1.3);
+  box-shadow: 0 0 8px rgba(200, 230, 60, 0.5);
+}
+
+.deals-dot:hover {
+  background: #c8e63c;
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — TABLET (max 1040px)
+───────────────────────────────────────── */
+@media (max-width: 1040px) {
+  .deals-section {
+    padding: 40px 16px 50px;
+  }
+
+  .deals-card-slot--left,
+  .deals-card-slot--right {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.85);
+  }
+
+  .deals-card-slot--left {
+    transform: translateX(-120%) scale(0.85);
+  }
+
+  .deals-card-slot--right {
+    transform: translateX(120%) scale(0.85);
+  }
+
+  .deals-card-slot--hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .deals-cards-track {
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    min-height: 360px;
+  }
+
+  .deals-card-slot--center {
+    flex: 0 0 min(300px, 85vw);
+    transform: scale(1);
+  }
+
+  .deal-card--center {
+    min-height: auto;
+    padding: 22px 18px 18px;
+  }
+
+  .deals-carousel-wrapper {
+    padding: 0 50px;
+  }
+
+  .deals-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .deals-main-heading {
+    margin-bottom: 30px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — MOBILE (max 600px)
+───────────────────────────────────────── */
+@media (max-width: 600px) {
+  .deals-section {
+    padding: 36px 12px 40px;
+  }
+
+  .deals-card-slot--center {
+    flex: 0 0 min(280px, 82vw);
+  }
+
+  .deal-card {
+    padding: 20px 16px 16px;
+    border-radius: 16px;
+  }
+
+  .deal-card--side {
+    min-height: auto;
+  }
+
+  .deal-card--center {
+    min-height: auto;
+  }
+
+  .deals-main-heading {
+    font-size: clamp(28px, 9vw, 50px);
+    margin-bottom: 24px;
+  }
+
+  .deals-small-heading {
+    font-size: clamp(16px, 4.5vw, 24px);
+  }
+
+  .deals-heading-line {
+    max-width: 60px;
+  }
+
+  .deals-carousel-wrapper {
+    padding: 0 40px;
+  }
+
+  .deals-nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .deals-nav-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .deal-food-icon-wrap {
+    width: 60px;
+    height: 60px;
+  }
+
+  .deal-food-icon-wrap--center {
+    width: 66px;
+    height: 66px;
+  }
+
+  .deal-food-icon-wrap svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .deal-card-title {
+    font-size: 16px;
+  }
+
+  .deal-card-subtitle {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+
+  .deal-card-item {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .deal-price-pill {
+    padding: 8px 14px;
+    font-size: 18px;
+  }
+
+  .deal-buy-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .deals-dots-row {
+    margin-top: 24px;
+    gap: 8px;
+  }
+
+  .deals-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .deals-cards-track {
+    min-height: 340px;
+  }
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — VERY SMALL (max 380px)
+───────────────────────────────────────── */
+@media (max-width: 380px) {
+  .deals-card-slot--center {
+    flex: 0 0 78vw;
+  }
+
+  .deals-carousel-wrapper {
+    padding: 0 34px;
+  }
+
+  .deals-nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .deals-nav-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
